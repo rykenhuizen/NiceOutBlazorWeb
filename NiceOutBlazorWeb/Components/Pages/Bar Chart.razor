@@ -1,0 +1,49 @@
+﻿@page "/"
+@using NiceOut.Models
+
+@rendermode InteractiveServer
+
+<PageTitle>NiceOut</PageTitle>
+
+<h1>NiceOut: Weather without numbers</h1>
+
+
+
+<div class="rz-p-0 rz-p-md-12">
+    <h4>@_date</h4>
+    <RadzenChart Style="background-image: linear-gradient(green, yellow, red)" ColorScheme="@colorScheme">
+        <RadzenColumnSeries Data="@_details" CategoryProperty="hour" ValueProperty="niceFactor">
+            <TooltipTemplate Context="data">
+                <div>
+                    @foreach (var tt in data.tooltips)
+                    {
+                        <div>@tt</div>
+                    }
+                </div>
+            </TooltipTemplate>
+        </RadzenColumnSeries>
+        <RadzenValueAxis Min="0" Max="100" Visible="false">
+            <RadzenGridLines Visible="false" />
+        </RadzenValueAxis>
+        <RadzenCategoryAxis Min="0" Max="24" Step="1">
+            <RadzenGridLines Visible="false" />            
+        </RadzenCategoryAxis>
+        <RadzenLegend Visible ="false" />
+    </RadzenChart>
+</div>
+
+@code {
+    NiceOut.Business.NiceOutChartFactory nocf = new NiceOut.Business.NiceOutChartFactory();
+    NiceOut.Models.HourlyDetails[] _details;
+    string _date;
+
+    ColorScheme colorScheme = ColorScheme.Divergent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        NiceOutChart chartData = await nocf.GetChartData();
+        _details = chartData.details;
+        _date = chartData.date.ToLongDateString();
+    }
+    
+}
